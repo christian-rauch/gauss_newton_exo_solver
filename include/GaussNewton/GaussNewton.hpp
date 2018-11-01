@@ -29,6 +29,8 @@ private:
 
     UnconstrainedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
 
+    double lambda = 0;  // damping factor
+
     int iterations_;
 };
 }

@@ -1,4 +1,5 @@
 extend <exotica/MotionSolver>
 Optional double Convergence = 0.0;
 Optional double MaxStep = 0.02;
+Optional double Damping = 0;
 Optional Eigen::VectorXd Alpha = Eigen::VectorXd(1);

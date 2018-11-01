@@ -32,8 +32,16 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
 
     solution.resize(1, prob_->N);
 
+    lambda = parameters_.Damping;   // initial damping
+
+//    std::cout << "JN " << prob_->JN << std::endl;
+//    std::cout << "PhiN " << prob_->PhiN << std::endl;
+
+    const Eigen::MatrixXd I = Eigen::MatrixXd::Identity(prob_->Cost.J.cols(), prob_->Cost.J.cols());
+
     Eigen::VectorXd q = q0;
-    double error = INFINITY;
+    double error = std::numeric_limits<double>::infinity();
+    Eigen::VectorXd qd;
     int i;
     for (i = 0; i < getNumberOfMaxIterations(); i++)
     {
@@ -42,23 +50,46 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
 
         std::cout << "yd: " << std::endl << std::setprecision(3) << yd.transpose() << std::endl;
 
+        // weightes sum of squares
         error = prob_->getScalarCost();
 
         std::cout << "err: " << std::endl << error << ", " << yd.cwiseAbs().sum() << std::endl;
 
         prob_->setCostEvolution(i, error);
 
+        const double mse = error/yd.size();
+        std::cout << "mse: " << mse << std::endl;
+
 //        std::cout << "S: " << std::endl << std::setprecision(3) << prob_->Cost.S << std::endl;
-        std::cout << "J: " << std::endl << std::setprecision(3) << prob_->Cost.J << std::endl;
-        //Eigen::MatrixXd Jinv = PseudoInverse(prob_->Cost.S * prob_->Cost.J);
-        Eigen::MatrixXd Jinv = (prob_->Cost.S*prob_->Cost.J).completeOrthogonalDecomposition().pseudoInverse();
-        std::cout << "Jinv: " << std::endl << std::setprecision(3) << Jinv << std::endl;
-        Eigen::VectorXd qd = Jinv * yd;
+//        std::cout << "J: " << std::endl << std::setprecision(3) << prob_->Cost.J << std::endl;
+
+        if(i>0) {
+            if( error < prob_->getCostEvolution(i-1) ) {
+                // success: increase damping
+                lambda = lambda * 10.0;
+            }
+            else {
+                // failure: decrease damping
+                lambda = lambda / 10.0;
+            }
+        }
+        std::cout << "damping: " << lambda << std::endl;
+
+        // via inverse
+//        Eigen::MatrixXd Jinv = (prob_->Cost.S*prob_->Cost.J).completeOrthogonalDecomposition().pseudoInverse();
+//        std::cout << "Jinv: " << std::endl << std::setprecision(3) << Jinv << std::endl;
+//        qd = Jinv * yd;
+
+        // via solve
+        qd = (prob_->Cost.J.transpose()*prob_->Cost.J + lambda*I).ldlt().solve(prob_->Cost.J.transpose()*prob_->Cost.ydiff);
+
+//        const double relative_error = (prob_->Cost.J.transpose()*prob_->Cost.J * qd - prob_->Cost.J.transpose()*prob_->Cost.ydiff).norm() / (prob_->Cost.J.transpose()*prob_->Cost.ydiff).norm(); // norm() is L2 norm
+//        std::cout << "relative_error: " << relative_error << std::endl;
+
         std::cout << "qd: " << std::endl << std::setprecision(3) << qd.transpose() << std::endl;
 
-        ScaleToStepSize(qd);
-
-        std::cout << "qds: " << std::endl << std::setprecision(3) << qd.transpose() << std::endl;
+//        ScaleToStepSize(qd);
+//        std::cout << "qds: " << std::endl << std::setprecision(3) << qd.transpose() << std::endl;
 
         if (parameters_.Alpha.size() == 1)
         {
