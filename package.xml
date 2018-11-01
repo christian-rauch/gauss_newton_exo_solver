@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>gn_solver</name>
+  <version>0.0.1</version>
+  <description>A Gauss-Newton solver for EXOTica</description>
+
+  <maintainer email="Christian.Rauch@ed.ac.uk">Christian Rauch</maintainer>
+
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>exotica</depend>
+
+  <export>
+    <exotica plugin="${prefix}/exotica_plugins.xml" />
+  </export>
+</package>

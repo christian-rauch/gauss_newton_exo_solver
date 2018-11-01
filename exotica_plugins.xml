@@ -1,0 +1,5 @@
+<library path="lib/libgn_solver">
+  <class name="exotica/GNsolver" type="exotica::GaussNewton" base_class_type="exotica::MotionSolver">
+    <description>Gauss-Newton solver</description>
+  </class>
+</library>
