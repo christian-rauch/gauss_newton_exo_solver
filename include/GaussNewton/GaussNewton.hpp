@@ -22,13 +22,14 @@ public:
 
     int getLastIteration() { return iterations_; }
 
+    void ScaleToStepSize(Eigen::VectorXdRef xd);
+
 private:
     GNsolverInitializer parameters_;
 
     UnconstrainedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
 
     int iterations_;
-    double error;
 };
 }
 
