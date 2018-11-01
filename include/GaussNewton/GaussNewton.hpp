@@ -31,7 +31,7 @@ private:
 
     double lambda = 0;  // damping factor
 
-    int iterations_;
+    int iterations_ = -1;
 };
 }
 
