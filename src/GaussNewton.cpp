@@ -57,6 +57,7 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
     lambda = parameters_.Damping;   // initial damping
 
     const Eigen::MatrixXd I = Eigen::MatrixXd::Identity(prob_->Cost.J.cols(), prob_->Cost.J.cols());
+    Eigen::MatrixXd J;
 
     Eigen::VectorXd q = q0;
     double error = std::numeric_limits<double>::infinity();
@@ -79,8 +80,10 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
         const double mse = error/yd.size();
         if(debug_) std::cout << "mse: " << mse << std::endl;
 
+        J = prob_->Cost.S*prob_->Cost.J;
+
 //        std::cout << "S: " << std::endl << std::setprecision(3) << prob_->Cost.S << std::endl;
-        if(debug_) std::cout << "J: " << std::endl << std::setprecision(3) << prob_->Cost.J << std::endl;
+        if(debug_) std::cout << "J: " << std::endl << std::setprecision(3) << J << std::endl;
 
         if(i>0) {
             if( error < prob_->getCostEvolution(i-1) ) {
@@ -95,13 +98,18 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
 
         if(debug_) std::cout << "damping: " << lambda << std::endl;
 
-        // via inverse
-//        Eigen::MatrixXd Jinv = (prob_->Cost.S*prob_->Cost.J).completeOrthogonalDecomposition().pseudoInverse();
-//        std::cout << "Jinv: " << std::endl << std::setprecision(3) << Jinv << std::endl;
-//        qd = Jinv * yd;
+        Eigen::MatrixXd M;
+        if(parameters_.ScaleProblem=="none") {
+            M = I;
+        }
+        else if(parameters_.ScaleProblem=="Jacobian") {
+            M = (J.transpose()*J).diagonal().asDiagonal();
+        }
+        else {
+            throw std::runtime_error("no ScaleProblem of type "+parameters_.ScaleProblem);
+        }
 
-        // via solve
-        qd = (prob_->Cost.J.transpose()*prob_->Cost.J + lambda*I).ldlt().solve(prob_->Cost.J.transpose()*prob_->Cost.ydiff);
+        qd = (J.transpose()*J + lambda*M).ldlt().solve(J.transpose()*yd);
 
         if(debug_) std::cout << "qd: " << std::endl << std::setprecision(3) << qd.transpose() << std::endl;
 

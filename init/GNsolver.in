@@ -2,3 +2,6 @@ extend <exotica/MotionSolver>
 Optional double Convergence = 0.0;
 Optional double Damping = 0;
 Optional Eigen::VectorXd Alpha = Eigen::VectorXd(1);
+// ScaleProblem: direction of damping
+// "none": diagonal 1 matrix (Identity), "Jacobian": diagonal of Hessian approximation
+Optional std::string ScaleProblem = "none"; // "none" or "Jacobian"
