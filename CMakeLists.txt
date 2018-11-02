@@ -9,7 +9,6 @@ AddInitializer(GNsolver)
 GenInitializers()
 
 catkin_package(
-    INCLUDE_DIRS include
     LIBRARIES gn_solver
     CATKIN_DEPENDS exotica
 )
@@ -26,5 +25,4 @@ add_dependencies(gn_solver gn_solver_initializers)
 install(TARGETS gn_solver
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-install(DIRECTORY include/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 install(FILES exotica_plugins.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

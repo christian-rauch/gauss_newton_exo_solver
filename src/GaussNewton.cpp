@@ -1,8 +1,33 @@
-#include <GaussNewton/GaussNewton.hpp>
+#include <exotica/Problems/UnconstrainedEndPoseProblem.h>
+#include <exotica/MotionSolver.h>
+#include <gn_solver/GNsolverInitializer.h>
 
-REGISTER_MOTIONSOLVER_TYPE("GNsolver", exotica::GaussNewton)
 
 namespace exotica {
+
+class GaussNewton : public MotionSolver, public Instantiable<GNsolverInitializer> {
+public:
+    GaussNewton();
+
+    virtual ~GaussNewton();
+
+    virtual void Instantiate(GNsolverInitializer& init);
+
+    virtual void Solve(Eigen::MatrixXd& solution);
+
+    virtual void specifyProblem(PlanningProblem_ptr pointer);
+
+private:
+    GNsolverInitializer parameters_;
+
+    UnconstrainedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
+
+    double lambda = 0;  // damping factor
+
+    int iterations_ = -1;
+};
+
+REGISTER_MOTIONSOLVER_TYPE("GNsolver", exotica::GaussNewton)
 
 GaussNewton::GaussNewton() { }
 
@@ -17,6 +42,10 @@ void GaussNewton::specifyProblem(PlanningProblem_ptr pointer) {
 
     MotionSolver::specifyProblem(pointer);
 
+    // generic problem
+    problem_ = pointer;
+
+    // specific problem
     prob_ = std::static_pointer_cast<UnconstrainedEndPoseProblem>(pointer);
 }
 
