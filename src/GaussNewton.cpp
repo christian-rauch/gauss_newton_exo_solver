@@ -7,10 +7,6 @@ namespace exotica {
 
 class GaussNewton : public MotionSolver, public Instantiable<GNsolverInitializer> {
 public:
-    GaussNewton();
-
-    virtual ~GaussNewton();
-
     virtual void Instantiate(GNsolverInitializer& init);
 
     virtual void Solve(Eigen::MatrixXd& solution);
@@ -28,10 +24,6 @@ private:
 };
 
 REGISTER_MOTIONSOLVER_TYPE("GNsolver", exotica::GaussNewton)
-
-GaussNewton::GaussNewton() { }
-
-GaussNewton::~GaussNewton() { }
 
 void GaussNewton::Instantiate(GNsolverInitializer& init) { parameters_ = init; }
 
