@@ -77,8 +77,7 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
 
         prob_->setCostEvolution(i, error);
 
-        const double mse = error/yd.size();
-        if(debug_) std::cout << "mse: " << mse << std::endl;
+        if(debug_) std::cout << "mse: " << error/yd.size() << std::endl;
 
         J = prob_->Cost.S*prob_->Cost.J;
 
@@ -110,6 +109,8 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
         }
 
         qd = (J.transpose()*J + lambda*M).ldlt().solve(J.transpose()*yd);
+
+        if(debug_) std::cout << "solution?: " << ((J.transpose()*J + lambda*M)*qd).isApprox(J.transpose()*yd) << std::endl;
 
         if(debug_) std::cout << "qd: " << std::endl << std::setprecision(3) << qd.transpose() << std::endl;
 
