@@ -108,7 +108,7 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
             throw std::runtime_error("no ScaleProblem of type "+parameters_.ScaleProblem);
         }
 
-        qd = (J.transpose()*J + lambda*M).ldlt().solve(J.transpose()*yd);
+        qd = (J.transpose()*J + lambda*M).completeOrthogonalDecomposition().solve(J.transpose()*yd);
 
         if(debug_) std::cout << "solution?: " << ((J.transpose()*J + lambda*M)*qd).isApprox(J.transpose()*yd) << std::endl;
 
