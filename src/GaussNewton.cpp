@@ -124,7 +124,7 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
         if(debug_) std::cout << "q: " << std::endl << std::setprecision(3) << q.transpose() << std::endl;
 
         if (qd.norm() < parameters_.Convergence) {
-            if (debug_) HIGHLIGHT_NAMED("IKsolver", "Reached convergence (" << qd.norm() << " < " << parameters_.Convergence << ")");
+            if (debug_) HIGHLIGHT_NAMED("GaussNewton", "Reached convergence (" << qd.norm() << " < " << parameters_.Convergence << ")");
             break;
         }
     }
