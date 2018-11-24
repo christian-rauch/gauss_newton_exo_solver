@@ -61,6 +61,7 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
 
     Eigen::VectorXd q = q0;
     double error = std::numeric_limits<double>::infinity();
+    double error_prev = std::numeric_limits<double>::infinity();
     Eigen::VectorXd yd;
     Eigen::VectorXd qd;
     for(size_t i = 0; i < getNumberOfMaxIterations(); iterations_=++i) {
@@ -71,6 +72,7 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
         if(debug_) std::cout << "yd: " << std::endl << std::setprecision(3) << yd.transpose() << std::endl;
 
         // weighted sum of squares
+        error_prev = error;
         error = prob_->getScalarCost();
 
         if(debug_) std::cout << "err: " << std::endl << error << ", " << yd.cwiseAbs().sum() << std::endl;
@@ -84,14 +86,16 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
 //        std::cout << "S: " << std::endl << std::setprecision(3) << prob_->Cost.S << std::endl;
         if(debug_) std::cout << "J: " << std::endl << std::setprecision(3) << J << std::endl;
 
+        // source: https://uk.mathworks.com/help/optim/ug/least-squares-model-fitting-algorithms.html, eq. 13
+
         if(i>0) {
-            if( error < prob_->getCostEvolution(i-1) ) {
-                // success: increase damping
-                lambda = lambda * 10.0;
+            if(error < error_prev) {
+                // success, error decreased: decrease damping
+                lambda = lambda / 10.0;
             }
             else {
-                // failure: decrease damping
-                lambda = lambda / 10.0;
+                // failure, error increased: increase damping
+                lambda = lambda * 10.0;
             }
         }
 
