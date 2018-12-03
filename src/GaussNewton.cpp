@@ -112,6 +112,16 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
             throw std::runtime_error("no ScaleProblem of type "+parameters_.ScaleProblem);
         }
 
+        // condition number
+        // https://forum.kde.org/viewtopic.php?f=74&t=117430#p292018
+        if(debug_) {
+            const Eigen::MatrixXd A = J.transpose()*J + lambda*M;
+//            std::cout << "A:" << std::endl << A <<std::endl;
+            Eigen::JacobiSVD<Eigen::MatrixXd> svd(A);
+            double cond = svd.singularValues()(0) / svd.singularValues()(svd.singularValues().size()-1);
+            std::cout << "cond: " << cond << std::endl;
+        }
+
         qd = (J.transpose()*J + lambda*M).completeOrthogonalDecomposition().solve(J.transpose()*yd);
 
         if(debug_) std::cout << "solution?: " << ((J.transpose()*J + lambda*M)*qd).isApprox(J.transpose()*yd) << std::endl;
