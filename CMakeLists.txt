@@ -13,10 +13,7 @@ catkin_package(
     CATKIN_DEPENDS exotica_core
 )
 
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
+include_directories(${catkin_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} src/GaussNewton.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
