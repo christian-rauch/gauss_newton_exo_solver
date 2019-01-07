@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(gn_solver)
 
-find_package(catkin REQUIRED COMPONENTS exotica)
+find_package(catkin REQUIRED COMPONENTS exotica_core)
 
 find_package(Eigen3 REQUIRED)
 
@@ -10,7 +10,7 @@ GenInitializers()
 
 catkin_package(
     LIBRARIES gn_solver
-    CATKIN_DEPENDS exotica
+    CATKIN_DEPENDS exotica_core
 )
 
 include_directories(

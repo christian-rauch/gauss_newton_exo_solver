@@ -1,6 +1,6 @@
-#include <exotica/Problems/UnconstrainedEndPoseProblem.h>
-#include <exotica/MotionSolver.h>
-#include <gn_solver/GNsolverInitializer.h>
+#include <exotica_core/problems/unconstrained_end_pose_problem.h>
+#include <exotica_core/motion_solver.h>
+#include <gn_solver/GNsolver_initializer.h>
 
 
 namespace exotica {
@@ -11,12 +11,12 @@ public:
 
     virtual void Solve(Eigen::MatrixXd& solution);
 
-    virtual void specifyProblem(PlanningProblem_ptr pointer);
+    virtual void SpecifyProblem(PlanningProblemPtr pointer);
 
 private:
     GNsolverInitializer parameters_;
 
-    UnconstrainedEndPoseProblem_ptr prob_;  // Shared pointer to the planning problem.
+    UnconstrainedEndPoseProblemPtr prob_;  // Shared pointer to the planning problem.
 
     double lambda = 0;  // damping factor
 
@@ -27,12 +27,12 @@ REGISTER_MOTIONSOLVER_TYPE("GNsolver", exotica::GaussNewton)
 
 void GaussNewton::Instantiate(GNsolverInitializer& init) { parameters_ = init; }
 
-void GaussNewton::specifyProblem(PlanningProblem_ptr pointer) {
+void GaussNewton::SpecifyProblem(PlanningProblemPtr pointer) {
     if (pointer->type() != "exotica::UnconstrainedEndPoseProblem") {
-        throw_named("This GaussNewton can't solve problem of type '" << pointer->type() << "'!");
+        ThrowNamed("This GaussNewton can't solve problem of type '" << pointer->type() << "'!");
     }
 
-    MotionSolver::specifyProblem(pointer);
+    MotionSolver::SpecifyProblem(pointer);
 
     // generic problem
     problem_ = pointer;
@@ -42,21 +42,21 @@ void GaussNewton::specifyProblem(PlanningProblem_ptr pointer) {
 }
 
 void GaussNewton::Solve(Eigen::MatrixXd& solution) {
-    prob_->resetCostEvolution(getNumberOfMaxIterations() + 1);
+    prob_->ResetCostEvolution(GetNumberOfMaxIterations() + 1);
 
     Timer timer;
 
-    if (!prob_) throw_named("Solver has not been initialized!");
+    if (!prob_) ThrowNamed("Solver has not been initialized!");
 
-    const Eigen::VectorXd q0 = prob_->applyStartState();
+    const Eigen::VectorXd q0 = prob_->ApplyStartState();
 
-    if (prob_->N != q0.rows()) throw_named("Wrong size q0 size=" << q0.rows() << ", required size=" << prob_->N);
+    if (prob_->N != q0.rows()) ThrowNamed("Wrong size q0 size=" << q0.rows() << ", required size=" << prob_->N);
 
     solution.resize(1, prob_->N);
 
     lambda = parameters_.Damping;   // initial damping
 
-    const Eigen::MatrixXd I = Eigen::MatrixXd::Identity(prob_->Cost.J.cols(), prob_->Cost.J.cols());
+    const Eigen::MatrixXd I = Eigen::MatrixXd::Identity(prob_->cost.jacobian.cols(), prob_->cost.jacobian.cols());
     Eigen::MatrixXd J;
 
     Eigen::VectorXd q = q0;
@@ -64,26 +64,26 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
     double error_prev = std::numeric_limits<double>::infinity();
     Eigen::VectorXd yd;
     Eigen::VectorXd qd;
-    for(size_t i = 0; i < getNumberOfMaxIterations(); iterations_=++i) {
+    for(size_t i = 0; i < GetNumberOfMaxIterations(); iterations_=++i) {
         prob_->Update(q);
 
-        yd = prob_->Cost.S * prob_->Cost.ydiff;
+        yd = prob_->cost.S * prob_->cost.ydiff;
 
         if(debug_) std::cout << "yd: " << std::endl << std::setprecision(3) << yd.transpose() << std::endl;
 
         // weighted sum of squares
         error_prev = error;
-        error = prob_->getScalarCost();
+        error = prob_->GetScalarCost();
 
         if(debug_) std::cout << "err: " << std::endl << error << ", " << yd.cwiseAbs().sum() << std::endl;
 
-        prob_->setCostEvolution(i, error);
+        prob_->SetCostEvolution(i, error);
 
         if(debug_) std::cout << "mse: " << error/yd.size() << std::endl;
 
-        J = prob_->Cost.S*prob_->Cost.J;
+        J = prob_->cost.S*prob_->cost.jacobian;
 
-//        std::cout << "S: " << std::endl << std::setprecision(3) << prob_->Cost.S << std::endl;
+//        std::cout << "S: " << std::endl << std::setprecision(3) << prob_->cost.S << std::endl;
         if(debug_) std::cout << "J: " << std::endl << std::setprecision(3) << J << std::endl;
 
         // source: https://uk.mathworks.com/help/optim/ug/least-squares-model-fitting-algorithms.html, eq. 13
@@ -145,7 +145,7 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
 
     solution.row(0) = q;
 
-    planning_time_ = timer.getDuration();
+    planning_time_ = timer.GetDuration();
 }
 
 }   // namespace exotica
