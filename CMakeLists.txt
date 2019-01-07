@@ -9,7 +9,7 @@ AddInitializer(GNsolver)
 GenInitializers()
 
 catkin_package(
-    LIBRARIES gn_solver
+    LIBRARIES ${PROJECT_NAME}
     CATKIN_DEPENDS exotica_core
 )
 
@@ -18,11 +18,11 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(gn_solver src/GaussNewton.cpp)
-target_link_libraries(gn_solver ${catkin_LIBRARIES})
-add_dependencies(gn_solver gn_solver_initializers)
+add_library(${PROJECT_NAME} src/GaussNewton.cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_initializers ${catkin_EXPORTED_TARGETS})
 
-install(TARGETS gn_solver
+install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 install(FILES exotica_plugins.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
