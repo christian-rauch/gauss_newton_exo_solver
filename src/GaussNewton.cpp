@@ -7,15 +7,11 @@ namespace exotica {
 
 class GaussNewton : public MotionSolver, public Instantiable<GNsolverInitializer> {
 public:
-    virtual void Instantiate(const GNsolverInitializer& init) override;
-
     virtual void Solve(Eigen::MatrixXd& solution) override;
 
     virtual void SpecifyProblem(PlanningProblemPtr pointer) override;
 
 private:
-    GNsolverInitializer parameters_;
-
     UnconstrainedEndPoseProblemPtr prob_;  // Shared pointer to the planning problem.
 
     double lambda = 0;  // damping factor
@@ -24,8 +20,6 @@ private:
 };
 
 REGISTER_MOTIONSOLVER_TYPE("GNsolver", exotica::GaussNewton)
-
-void GaussNewton::Instantiate(const GNsolverInitializer& init) { parameters_ = init; }
 
 void GaussNewton::SpecifyProblem(PlanningProblemPtr pointer) {
     if (pointer->type() != "exotica::UnconstrainedEndPoseProblem") {
