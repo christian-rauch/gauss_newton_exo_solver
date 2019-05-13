@@ -15,8 +15,6 @@ private:
     UnconstrainedEndPoseProblemPtr prob_;  // Shared pointer to the planning problem.
 
     double lambda = 0;  // damping factor
-
-    int iterations_ = -1;
 };
 
 REGISTER_MOTIONSOLVER_TYPE("GNsolver", exotica::GaussNewton)
@@ -63,7 +61,7 @@ void GaussNewton::Solve(Eigen::MatrixXd& solution) {
     double error_prev = std::numeric_limits<double>::infinity();
     Eigen::VectorXd yd;
     Eigen::VectorXd qd;
-    for(size_t i = 0; i < GetNumberOfMaxIterations(); iterations_=++i) {
+    for(size_t i = 0; i < GetNumberOfMaxIterations(); i++) {
         prob_->Update(q);
 
         yd = prob_->cost.S * prob_->cost.ydiff;
